@@ -14,10 +14,13 @@ It contains packages and functionality commonly used when developing with Silver
 ### Installation
 
 ```bash
-composer create-project brettt89/silverstripe-docker my-website
+composer create-project brettt89/silverstripe-docker ./my/website/folder
 ```
 
-This docker-compose setup comes packaged with:
+`./my/website/folder` should be the root directory where your codebase and configuration 
+files will live.
+
+##### Applications packaged in docker-compose.yml
 
  * Apache Webserver
  * MySQL Database
@@ -25,11 +28,16 @@ This docker-compose setup comes packaged with:
  * SSPAK
 
 ### Setup
-##### Clone website into `public` directory
+
+These commands should be run from within the project folder created during Installation.
+
+*E.g. `./my/website/folder`*
+
+##### Clone website into `public/` directory
 ```bash
 git clone <repo> public
 ```
-*NOTE: It is important that the website codebase exists in the public/ directory*
+*NOTE: It is important that the website codebase exists in the `public/` directory*
 
 ##### Install composer dependencies:
 ```bash
@@ -51,54 +59,3 @@ The asset builder uses gulp to watch the swift directory for any changes and
 rebuilds as necessary
 
 **The site will then be available at http://localhost/.**
-
-### Additional Configurations
-
-#### Node / NPM / Gulp / etc
-
-To add Node and NPM based applications to you environment, add the following to the 
-docker-compose.yml file.
-
-```yml
-assets:
-  image: node
-  volumes:
-    - './public/<packages.json location>:/usr/src/app'
-  working_dir: '/usr/src/app'
-```
-
-*Make sure to replace <packages.json location> with the location of your packages.json file.
-E.g. `./public/themes/my-theme:/usr/src/app`*
-
-You can then run you NPM / Node based commands like so
-```bash
-# Install NPM modules
-docker-compose run assets npm install
-
-# Run Gulp from NPM installed gulp
-docker-compose run assets node_modules/.bin/gulp
-
-# Have Gulp watch for changes and build as necessary
-docker-compose run assets node_modules/.bin/gulp watch
-```
-
-You could add a command to the docker-compose.yml file for node to always execute commands when
-started.
-
-```yml
-assets:
-  image: node
-  volumes:
-    - './public/<packages.json location>:/usr/src/app'
-  working_dir: '/usr/src/app'
-  command:
-    'bash -c "npm install && node_modules/.bin/gulp watch"'
-```
-
-Then you can just add "assets" to your `docker-compose up` command
-```bash
-docker-compose up -d web assets
-```
-
-This will run `npm install` to install any NPM packages (if not already installed) and the run 
-`gulp watch` in the background to generate assets as files are changed.
