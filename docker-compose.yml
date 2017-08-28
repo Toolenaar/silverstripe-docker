@@ -1,0 +1,67 @@
+version: '3.1'
+
+services:
+  # Webserver configuration
+  #
+  # Contains "symlink" type connection between public/ folder
+  # and /var/www/html on the container.
+  web:
+    build: .
+    ports:
+      - '80:80'
+    links:
+      - database:database
+    volumes:
+      - './public:/var/www/html'
+      - './_ss_environment.php:/var/www/_ss_environment.php'
+
+  # Database configuration
+  #
+  # Uses empty `root` password for database connection. Can also
+  # be identified on the "web" container by the hostname "database"
+  # Also contains a persistant volume for database data.
+  database:
+    image: mysql
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'db-data:/var/lib/mysql'
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+
+  # Composer configuration
+  #
+  # Allows composer dependancies to be installed without composer
+  # being installed locally
+  composer:
+    image: composer/composer:php5
+    volumes:
+      - './public:/app'
+      - $SSH_AUTH_SOCK:/ssh-agent
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+
+  # SSPAK configuration
+  #
+  # Tooling for saving and loading snapshots for SilverStripe
+  # websites.
+  #
+  # Snapshots should be located in the snapshots/ folder as this
+  # is mounted on the container
+  #
+  # Contains link to database and website content as SSPAK requires
+  # Access to framework and _ss_environment.php
+  sspak:
+    build:
+      context: .
+      dockerfile: Dockerfile.sspak
+    links:
+      - database:database
+    volumes:
+      - './snapshots:/app/snapshots:ro'
+      - './_ss_environment.php:/app/_ss_environment.php:ro'
+      - './public:/app/public:ro'
+
+volumes:
+  db-data:
