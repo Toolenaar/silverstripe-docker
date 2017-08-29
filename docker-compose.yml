@@ -53,15 +53,13 @@ services:
   # Contains link to database and website content as SSPAK requires
   # Access to framework and _ss_environment.php
   sspak:
-    build:
-      context: .
-      dockerfile: Dockerfile.sspak
+    image: brettt89/sspak
     links:
       - database:database
     volumes:
-      - './snapshots:/app/snapshots:ro'
+      - './snapshots:/app/snapshots'
       - './_ss_environment.php:/app/_ss_environment.php:ro'
-      - './public:/app/public:ro'
+      - './public:/app/public'
 
 volumes:
   db-data:
